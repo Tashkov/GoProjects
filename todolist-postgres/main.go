@@ -1,6 +1,7 @@
 package main
 
 import (
+	"GoProjects/todolist-postgres/handlers"
 	"GoProjects/todolist-postgres/models"
 	"fmt"
 	"net/http"
@@ -18,9 +19,10 @@ func main() {
 
 		models.ConnectDataBase()
 		fmt.Println("Connect to DB")
-		
+
 		// Task
-		r.POST("")
+		r.GET("/tasks", handlers.GetTasks)
+		r.POST("/tasks", handlers.CreateTask)
 
 	})
 

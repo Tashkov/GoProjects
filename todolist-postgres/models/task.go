@@ -1,14 +1,10 @@
 package models
 
-import (
-	"time"
-
-	"github.com/gofrs/uuid"
-)
+import "gorm.io/gorm"
 
 type Task struct {
-	ID   uuid.UUID `json:"id" db:"id"`
-	Name string    `json:"name" db:"name"`
-	Date time.Time `json:"date" db:"date"`
-	Body string    `json:"body" db:"body"`
+	gorm.Model
+	TaskName        string `json:"task_name"`
+	TaskDescription string `json:"task_description"`
+	ID              uint   `json:"id"`
 }
