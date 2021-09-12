@@ -10,21 +10,24 @@ import (
 )
 
 func main() {
-	r := gin.Default()
+	router := gin.Default()
 
-	r.GET("/", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
+	models.ConnectDataBase()
+	fmt.Println("Connect to DB")
+	// Welcome page
+	router.GET("/", func(ctx *gin.Context) {
+		ctx.JSON(http.StatusOK, gin.H{
 			"data": "Welcome to your To Do List",
 		})
 
-		models.ConnectDataBase()
-		fmt.Println("Connect to DB")
-
-		// Task
-		r.GET("/tasks", handlers.GetTasks)
-		r.POST("/tasks", handlers.CreateTask)
-
 	})
 
-	r.Run()
+	// Task
+	router.GET("/tasks", handlers.GetTasks)
+	router.POST("/tasks", handlers.CreateTask)
+	router.GET("tasks/:id", handlers.GetTask)
+	router.PATCH("tasks/:id", handlers.UpdateTask)
+	router.DELETE("tasks/:id", handlers.DeleteTask)
+
+	router.Run()
 }

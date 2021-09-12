@@ -9,16 +9,24 @@ import (
 
 // GET /tasks
 // Lists all tasks
-func GetTasks(c *gin.Context) {
+func GetTasks(ctx *gin.Context) {
 	var tasks []models.Task
 	models.DB.Find(&tasks)
 
-	c.JSON(http.StatusOK, gin.H{"data": tasks})
+	ctx.JSON(http.StatusOK, gin.H{"data": tasks})
 }
 
-// GET /tasks/id
+// GET /tasks/:id
 // Gets a specific task by id
-func GetTask() {
+func GetTask(ctx *gin.Context) {
+	var task models.Task
+
+	if err := models.DB.Debug().Where("id = ?", ctx.Param("id")).First(&task).Error; err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Task not found!"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"data": task})
 
 }
 
@@ -46,14 +54,45 @@ func CreateTask(c *gin.Context) {
 
 }
 
-// UPDATE /tasks/id
-// Updates a specific task by ID
-func UpdateTask() {
-
+// Schema to validate user input
+// When using PATCH method, include ID uint variable to resolve internal server error
+type UpdateTaskInput struct {
+	id              uint   `json:"id" binding:"required"`
+	TaskName        string `json:"task_name" binding:"required"`
+	TaskDescription string `json:"task_description"`
 }
 
-// DELETE /tasks/id
-// Deletes a specific task by ID
-func DeleteTask() {
+// UPDATE /tasks/:id
+// Updates a specific task by ID
+func UpdateTask(ctx *gin.Context) {
+	var task models.Task
+	if err := models.DB.Debug().Where("id = ?", ctx.Param("id")).First(&task).Error; err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Task not found!"})
+		return
+	}
 
+	var input UpdateTaskInput
+	if err := ctx.ShouldBindJSON(&input); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	models.DB.Debug().Model(&task).Updates(input)
+
+	ctx.JSON(http.StatusOK, gin.H{"data": task})
+}
+
+// DELETE /tasks/:id
+// Deletes a specific task by ID
+func DeleteTask(ctx *gin.Context) {
+	var task models.Task
+
+	if err := models.DB.Debug().Where("id = ?", ctx.Param("id")).First(&task).Error; err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Task not found!"})
+		return
+	}
+
+	models.DB.Debug().Delete(&task)
+
+	ctx.JSON(http.StatusOK, gin.H{"data": "delete task"})
 }
