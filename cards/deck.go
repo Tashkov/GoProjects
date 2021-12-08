@@ -31,6 +31,7 @@ func newDeck() deck {
 // Loops through the deck
 // and prints the value
 // of every single card
+// We use a reciever
 func (d deck) print() {
 	for i, card := range d {
 		fmt.Println(i, card)
